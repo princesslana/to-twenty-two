@@ -1,5 +1,6 @@
 package com.github.princesslana.totwentytwo;
 
+import java.io.File;
 import java.util.Optional;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,10 @@ public class Config {
 
   public static String getCountChannelId() {
     return getString("TTT_CHANNEL_ID");
+  }
+
+  public static File getHistoryFile() {
+    return new File("history.json");
   }
 
   public static ObjectMapper getJackson() {

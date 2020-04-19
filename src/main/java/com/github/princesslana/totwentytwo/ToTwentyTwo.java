@@ -9,6 +9,7 @@ import com.github.princesslana.smalld.SmallD;
 
 public class ToTwentyTwo implements Consumer<SmallD> {
 
+  private History history = History.load();
   private Round round = new Round();
 
   public void accept(SmallD smalld) {
@@ -22,7 +23,11 @@ public class ToTwentyTwo implements Consumer<SmallD> {
           round.onMessage(msg.getAuthor(), msg.getContent());
 
           if (round.isDone()) {
-            send(smalld, round.getResult().format());
+            Result result = round.getResult();
+            history.add(result);
+
+            send(smalld, result.format());
+            send(smalld, history.leaderboard());
 
             round = new Round();
           }

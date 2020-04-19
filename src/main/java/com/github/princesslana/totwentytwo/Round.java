@@ -23,7 +23,10 @@ public class Round {
       return;
     }
 
-    if (msg.equals(getExpectedCount().toString())) {
+    boolean isExpectedNumber = msg.equals(getExpectedCount().toString());
+    boolean isSameAsLastUser = Optional.of(who).equals(getLastUser());
+
+    if (isExpectedNumber && !isSameAsLastUser) {
       LOG.info("{} got {}", who.getTag(), getExpectedCount());
       count.add(who);
     } else {
@@ -43,7 +46,7 @@ public class Round {
 
     ImmutableResult.Builder r = ImmutableResult.builder();
 
-    Map<User, Integer> scores = new HashMap<>();
+    Map<User, Long> scores = new HashMap<>();
 
     if (loser == null) {
       User got22 = count.get(21);
@@ -51,12 +54,12 @@ public class Round {
       r = r.winner(got22);
 
       getPlayers().stream().forEach(p -> scores.put(p, -getSum(p)));
-      scores.put(got21, 0);
+      scores.put(got21, 0L);
       scores.put(got22, getSum(got22));
     } else {
       r = r.loser(loser);
 
-      getPlayers().stream().forEach(p -> scores.put(p, 0));
+      getPlayers().stream().forEach(p -> scores.put(p, 0L));
 
       scores.put(loser, -getSum(loser));
     }
@@ -82,8 +85,8 @@ public class Round {
     return ps;
   }
 
-  private Integer getSum(User u) {
-    Integer sum = 0;
+  private long getSum(User u) {
+    long sum = 0;
 
     for (int i = 0; i < count.size(); i++) {
       if (count.get(i).equals(u)) {
