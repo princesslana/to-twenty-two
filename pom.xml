@@ -5,7 +5,7 @@
   <version>0-SNAPSHOT</version>
 
   <properties>
-    <lib.smalld.version>0.2.0</lib.smalld.version>
+    <lib.smalld.version>0.2.3</lib.smalld.version>
     <lib.jackson.version>2.10.3</lib.jackson.version>
     <lib.slf4j.version>1.7.25</lib.slf4j.version>
     <lib.immutables.version>2.8.2</lib.immutables.version>
