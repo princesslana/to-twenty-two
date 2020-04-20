@@ -3,6 +3,7 @@ package com.github.princesslana.totwentytwo;
 import java.io.File;
 import java.util.Optional;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
@@ -35,7 +36,8 @@ public class Config {
 
   private static ObjectMapper createJackson() {
     ObjectMapper jackson = new ObjectMapper()
-      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .enable(SerializationFeature.INDENT_OUTPUT);
 
     jackson.registerModule(new Jdk8Module());
 
