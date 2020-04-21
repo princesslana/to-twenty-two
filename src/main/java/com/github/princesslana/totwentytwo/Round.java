@@ -54,7 +54,11 @@ public class Round {
       r = r.winner(got22);
 
       getPlayers().stream().forEach(p -> scores.put(p, -getSum(p)));
-      scores.put(got21, 0L);
+
+      if (getPlayers().size() > 2) {
+        scores.put(got21, 0L);
+      }
+
       scores.put(got22, getSum(got22));
     } else {
       r = r.loser(loser);
