@@ -25,10 +25,13 @@ public class Round {
 
     boolean isExpectedNumber = msg.equals(getExpectedCount().toString());
     boolean isSameAsLastUser = Optional.of(who).equals(getLastUser());
+    boolean isSnipe = getExpectedCount() == 22 && !getPlayers().contains(who);
 
     if (isExpectedNumber && !isSameAsLastUser) {
-      LOG.info("{} got {}", who.getTag(), getExpectedCount());
-      count.add(who);
+      if (!isSnipe) {
+        LOG.info("{} got {}", who.getTag(), getExpectedCount());
+        count.add(who);
+      }
     } else {
       LOG.info("{} lost", who.getTag());
       loser = who;
