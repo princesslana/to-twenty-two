@@ -6,8 +6,14 @@ import java.util.function.Consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.princesslana.smalld.SmallD;
+import com.github.princesslana.smalld.SmallDException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ToTwentyTwo implements Consumer<SmallD> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ToTwentyTwo.class);
 
   private History history = History.load();
   private Round round = new Round();
@@ -45,6 +51,8 @@ public class ToTwentyTwo implements Consumer<SmallD> {
         Config.getJackson().writeValueAsString(response));
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
+    } catch (SmallDException e) {
+      LOG.warn("Exception when sending", e);
     }
   }
 
