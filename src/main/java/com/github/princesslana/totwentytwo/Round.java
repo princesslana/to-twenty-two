@@ -92,17 +92,25 @@ public class Round {
     return ps;
   }
 
+  private long pointsFor(int score) {
+    if (score < 1 || score > 22) {
+      throw new IllegalArgumentException("Attempt to get score for " + score);
+    }
+
+    return score == 22 ? 22 : 22 - score;
+  }
+
   private long getSum(User u) {
     long sum = 0;
 
     for (int i = 0; i < count.size(); i++) {
       if (count.get(i).equals(u)) {
-        sum += i + 1;
+        sum += pointsFor(i + 1);
       }
     }
 
     if (u.equals(loser)) {
-      sum += count.size() + 1;
+      sum += pointsFor(count.size() + 1);
     }
 
     return sum;
