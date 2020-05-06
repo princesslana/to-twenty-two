@@ -1,6 +1,9 @@
 package com.github.princesslana.totwentytwo;
 
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +21,11 @@ public class ToTwentyTwo implements Consumer<SmallD> {
   private History history = History.load();
   private Round round = new Round();
 
+  private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
   public void accept(SmallD smalld) {
+    executor.scheduleWithFixedDelay(() -> checkForDone(smalld), 0, 1, TimeUnit.MINUTES);
+
     smalld.onGatewayPayload(p -> {
       GatewayPayload gp = GatewayPayload.read(p);
 
@@ -28,18 +35,22 @@ public class ToTwentyTwo implements Consumer<SmallD> {
         if (msg.getChannelId().equals(Config.getCountChannelId())) {
           round.onMessage(msg.getAuthor(), msg.getContent());
 
-          if (round.isDone()) {
-            Result result = round.getResult();
-            history.add(result);
-
-            send(smalld, result.format());
-            send(smalld, history.leaderboard());
-
-            round = new Round();
-          }
+          checkForDone(smalld);
         }
       }
     });
+  }
+
+  private synchronized void checkForDone(SmallD smalld) {
+    if (round.isDone()) {
+      Result result = round.getResult();
+      history.add(result);
+
+      send(smalld, result.format());
+      send(smalld, history.leaderboard());
+
+      round = new Round();
+    }
   }
 
   private static void send(SmallD smalld, String msg) {
