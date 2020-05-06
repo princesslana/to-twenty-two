@@ -1,5 +1,7 @@
 package com.github.princesslana.totwentytwo;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +20,8 @@ public class Round {
 
   private User loser;
 
+  private Instant lastCount;
+
   public void onMessage(User who, String msg) {
     if (isDone() || (count.isEmpty() && !msg.equals("1"))) {
       return;
@@ -31,6 +35,7 @@ public class Round {
       if (!isSnipe) {
         LOG.info("{} got {}", who.getTag(), getExpectedCount());
         count.add(who);
+        lastCount = Instant.now();
       }
     } else {
       LOG.info("{} lost", who.getTag());
@@ -39,7 +44,10 @@ public class Round {
   }
 
   public boolean isDone() {
-    return loser != null || count.size() == 22;
+    boolean isTimeOut = lastCount != null
+      && Duration.between(lastCount, Instant.now()).compareTo(Duration.ofHours(12)) > 0;
+
+    return loser != null || count.size() == 22 || isTimeOut;
   }
 
   public Result getResult() {
@@ -52,17 +60,17 @@ public class Round {
     Map<User, Long> scores = new HashMap<>();
 
     if (loser == null) {
-      User got22 = count.get(21);
-      User got21 = count.get(20);
-      r = r.winner(got22);
+      User winner = count.get(count.size() - 1);
+      User assist = count.size() == 22 ? count.get(20) : null;
+      r = r.winner(winner);
 
       getPlayers().stream().forEach(p -> scores.put(p, -getSum(p)));
 
-      if (getPlayers().size() > 2) {
-        scores.put(got21, 0L);
+      if (assist != null && getPlayers().size() > 2) {
+        scores.put(assist, 0L);
       }
 
-      scores.put(got22, getSum(got22));
+      scores.put(winner, getSum(winner));
     } else {
       r = r.loser(loser);
 
