@@ -6,8 +6,8 @@ Each round players count until they reach 22.
 
 For each round a player may win, lose, or push.
 
-* If a player wins, they gain points equal to the sum of all numbers they counted.
-* If a player loses, they lose points equal to the sum of all numbers they counted.
+* If a player wins, they gain points based upon the numbers they counted.
+* If a player loses, they lose points based upon the numbers they counted.
 * If a player pushes, they score zero.
 
 If a player counts 22, they win.
