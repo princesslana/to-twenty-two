@@ -62,19 +62,19 @@ public class ToTwentyTwo implements Consumer<SmallD> {
 
       history.add(result);
 
-      send(smalld, result.format());
-      send(smalld, history.leaderboard());
+      send(smalld, channelId, result.format());
+      send(smalld, channelId, history.leaderboard());
 
       rounds.put(channelId, new Round());
     }
   }
 
-  private static void send(SmallD smalld, String msg) {
+  private static void send(SmallD smalld, String channelId, String msg) {
     JsonNode response = Config.getJackson().createObjectNode().put("content", msg);
 
     try {
       smalld.post(
-        "/channels/" + Config.getCountChannelId() + "/messages",
+        "/channels/" + channelId + "/messages",
         Config.getJackson().writeValueAsString(response));
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
