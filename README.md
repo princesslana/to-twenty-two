@@ -18,3 +18,5 @@ A player can not count 22 unless they have counted previously (an attempt to do 
 
 If a player makes an error in the count (wrong number, playing twice in a row) they lose, and all others push.
 
+If there is no count for 12 hours, the last player to count wins, and all others lose.
+
