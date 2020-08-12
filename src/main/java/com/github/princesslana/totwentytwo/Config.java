@@ -1,7 +1,10 @@
 package com.github.princesslana.totwentytwo;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +20,12 @@ public class Config {
     return getString("TTT_TOKEN");
   }
 
-  public static String getCountChannelId() {
-    return getString("TTT_CHANNEL_ID");
+  public static Set<String> getCountChannelId() {
+    return new HashSet<>(Arrays.asList(getString("TTT_CHANNEL_ID").split(",")));
   }
 
-  public static File getHistoryFile() {
-    return new File("history.json");
+  public static File getHistoryFolder() {
+    return new File("data");
   }
 
   public static ObjectMapper getJackson() {

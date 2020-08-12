@@ -1,5 +1,7 @@
 package com.github.princesslana.totwentytwo;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,13 +20,15 @@ public class ToTwentyTwo implements Consumer<SmallD> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ToTwentyTwo.class);
 
-  private History history = History.load();
-  private Round round = new Round();
+  private Map<String, History> histories = new HashMap<>();
+  private Map<String, Round> rounds = new HashMap<>();
 
   private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
   public void accept(SmallD smalld) {
-    executor.scheduleWithFixedDelay(() -> checkForDone(smalld), 0, 1, TimeUnit.MINUTES);
+    executor.scheduleWithFixedDelay(() ->
+      rounds.entrySet().forEach(r -> checkForDone(smalld, r.getValue(), r.getKey()))
+      , 0, 1, TimeUnit.MINUTES);
 
     smalld.onGatewayPayload(p -> {
       GatewayPayload gp = GatewayPayload.read(p);
@@ -32,24 +36,36 @@ public class ToTwentyTwo implements Consumer<SmallD> {
       if (gp.op() == 0 && gp.t().equals(Optional.of("MESSAGE_CREATE"))) {
         Message msg = Message.read(gp.d());
 
-        if (msg.getChannelId().equals(Config.getCountChannelId())) {
+        if (Config.getCountChannelId().contains(msg.getChannelId())) {
+          if (!rounds.containsKey(msg.getChannelId())) {
+            rounds.put(msg.getChannelId(), new Round());
+          }
+
+          Round round = rounds.get(msg.getChannelId());
+
           round.onMessage(msg.getAuthor(), msg.getContent());
 
-          checkForDone(smalld);
+          checkForDone(smalld, round, msg.getChannelId());
         }
       }
     });
   }
 
-  private synchronized void checkForDone(SmallD smalld) {
+  private synchronized void checkForDone(SmallD smalld, Round round, String channelId) {
     if (round.isDone()) {
       Result result = round.getResult();
+
+      if (!histories.containsKey(channelId)) {
+        histories.put(channelId, History.load(channelId));
+      }
+      History history = histories.get(channelId);
+
       history.add(result);
 
       send(smalld, result.format());
       send(smalld, history.leaderboard());
 
-      round = new Round();
+      rounds.put(channelId, new Round());
     }
   }
 
