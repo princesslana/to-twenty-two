@@ -16,11 +16,13 @@ public class History {
 
   private List<Result> results = new ArrayList<>();
 
+  private File file;
+
   public void add(Result r) {
     results.add(r);
 
     try { 
-      Config.getJackson().writeValue(Config.getHistoryFile(), this);
+      Config.getJackson().writeValue(file, this);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -55,11 +57,13 @@ public class History {
     return str.toString();
   }
 
-  public static History load() {
-    File f = Config.getHistoryFile();
+  public static History load(String channelId) {
+    File f = new File(Config.getHistoryFolder(), channelId + ".json");
 
     try {
-      return f.exists() ? Config.getJackson().readValue(f, History.class) : new History();
+      History history = f.exists() ? Config.getJackson().readValue(f, History.class) : new History();
+      history.file = f;
+      return history;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
