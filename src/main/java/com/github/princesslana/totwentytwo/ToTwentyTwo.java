@@ -26,9 +26,8 @@ public class ToTwentyTwo implements Consumer<SmallD> {
   private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
   public void accept(SmallD smalld) {
-    executor.scheduleWithFixedDelay(() ->
-      rounds.entrySet().forEach(r -> checkForDone(smalld, r.getValue(), r.getKey()))
-      , 0, 1, TimeUnit.MINUTES);
+    executor.scheduleWithFixedDelay(
+        () -> rounds.keySet().forEach(cid -> checkForDone(smalld, cid)), 0, 1, TimeUnit.MINUTES);
 
     smalld.onGatewayPayload(p -> {
       GatewayPayload gp = GatewayPayload.read(p);
@@ -45,13 +44,15 @@ public class ToTwentyTwo implements Consumer<SmallD> {
 
           round.onMessage(msg.getAuthor(), msg.getContent());
 
-          checkForDone(smalld, round, msg.getChannelId());
+          checkForDone(smalld, msg.getChannelId());
         }
       }
     });
   }
 
-  private synchronized void checkForDone(SmallD smalld, Round round, String channelId) {
+  private synchronized void checkForDone(SmallD smalld, String channelId) {
+    Round round = rounds.get(channelId);
+
     if (round.isDone()) {
       Result result = round.getResult();
 
