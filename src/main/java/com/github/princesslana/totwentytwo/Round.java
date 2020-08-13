@@ -44,8 +44,9 @@ public class Round {
   }
 
   public boolean isDone() {
-    boolean isTimeOut = lastCount != null
-      && Duration.between(lastCount, Instant.now()).compareTo(Duration.ofHours(12)) > 0;
+    boolean isTimeOut =
+        lastCount != null
+            && Duration.between(lastCount, Instant.now()).compareTo(Duration.ofHours(12)) > 0;
 
     return loser != null || count.size() == 22 || isTimeOut;
   }
@@ -79,9 +80,11 @@ public class Round {
       scores.put(loser, -getSum(loser));
     }
 
-    scores.entrySet().stream()
-      .map(e -> ImmutableScore.builder().user(e.getKey()).score(e.getValue()).build())
-      .forEach(r::addScores);
+    scores
+        .entrySet()
+        .stream()
+        .map(e -> ImmutableScore.builder().user(e.getKey()).score(e.getValue()).build())
+        .forEach(r::addScores);
 
     return r.build();
   }
@@ -92,7 +95,7 @@ public class Round {
 
   private Set<User> getPlayers() {
     Set<User> ps = new HashSet<>(count);
-    
+
     if (loser != null) {
       ps.add(loser);
     }
@@ -128,4 +131,3 @@ public class Round {
     return count.isEmpty() ? Optional.empty() : Optional.of(count.get(count.size() - 1));
   }
 }
-

@@ -1,15 +1,15 @@
 package com.github.princesslana.totwentytwo;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class History {
@@ -21,7 +21,7 @@ public class History {
   public void add(Result r) {
     results.add(r);
 
-    try { 
+    try {
       Config.getJackson().writeValue(file, this);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -31,18 +31,22 @@ public class History {
   private Set<Score> getTotalScores() {
     Map<User, Long> scores = new HashMap<>();
 
-    results.stream()
-      .flatMap(r -> r.getScores().stream())
-      .forEach(s -> {
-        if (!scores.containsKey(s.getUser())) {
-          scores.put(s.getUser(), 0L);
-        }
-        scores.put(s.getUser(), scores.get(s.getUser()) + s.getScore());
-      });
+    results
+        .stream()
+        .flatMap(r -> r.getScores().stream())
+        .forEach(
+            s -> {
+              if (!scores.containsKey(s.getUser())) {
+                scores.put(s.getUser(), 0L);
+              }
+              scores.put(s.getUser(), scores.get(s.getUser()) + s.getScore());
+            });
 
-    return scores.entrySet().stream()
-      .map(e -> ImmutableScore.builder().user(e.getKey()).score(e.getValue()).build())
-      .collect(Collectors.toSet());
+    return scores
+        .entrySet()
+        .stream()
+        .map(e -> ImmutableScore.builder().user(e.getKey()).score(e.getValue()).build())
+        .collect(Collectors.toSet());
   }
 
   public String leaderboard() {
@@ -50,10 +54,10 @@ public class History {
 
     str.append("**Leaderboard:**");
     getTotalScores()
-      .stream()
-      .sorted(Comparator.comparing(Score::getScore).reversed())
-      .forEach(sc -> str.append("\n" + sc.getUser().getTag() + ": " + sc.getScore()));
-    
+        .stream()
+        .sorted(Comparator.comparing(Score::getScore).reversed())
+        .forEach(sc -> str.append("\n" + sc.getUser().getTag() + ": " + sc.getScore()));
+
     return str.toString();
   }
 
@@ -61,7 +65,8 @@ public class History {
     File f = new File(Config.getHistoryFolder(), channelId + ".json");
 
     try {
-      History history = f.exists() ? Config.getJackson().readValue(f, History.class) : new History();
+      History history =
+          f.exists() ? Config.getJackson().readValue(f, History.class) : new History();
       history.file = f;
       return history;
     } catch (IOException e) {
