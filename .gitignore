@@ -1,5 +1,6 @@
 .channel_id
 .token
+data
 dependency-reduced-pom.xml
 tags
 target

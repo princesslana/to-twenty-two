@@ -29,34 +29,37 @@ public class History {
   }
 
   private Set<Score> getTotalScores() {
-    Map<User, Long> scores = new HashMap<>();
+    Map<String, User> users = new HashMap<>();
+    Map<String, Long> scores = new HashMap<>();
 
     results
         .stream()
         .flatMap(r -> r.getScores().stream())
         .forEach(
             s -> {
-              if (!scores.containsKey(s.getUser())) {
-                scores.put(s.getUser(), 0L);
-              }
-              scores.put(s.getUser(), scores.get(s.getUser()) + s.getScore());
+              String userId = s.getUser().getId();
+              users.put(userId, s.getUser());
+              scores.put(userId, scores.getOrDefault(userId, 0L) + s.getScore());
             });
 
     return scores
         .entrySet()
         .stream()
-        .map(e -> ImmutableScore.builder().user(e.getKey()).score(e.getValue()).build())
+        .map(e -> ImmutableScore.builder().user(users.get(e.getKey())).score(e.getValue()).build())
         .collect(Collectors.toSet());
   }
 
   public String leaderboard() {
     StringBuilder str = new StringBuilder();
 
-    str.append("**Leaderboard:**");
+    str.append("```\n");
+    str.append("ALL TIME LEADERBOARD:");
     getTotalScores()
         .stream()
         .sorted(Comparator.comparing(Score::getScore).reversed())
-        .forEach(sc -> str.append("\n" + sc.getUser().getTag() + ": " + sc.getScore()));
+        .forEach(
+            sc -> str.append(String.format("\n%10d : %s", sc.getScore(), sc.getUser().getTag())));
+    str.append("\n```");
 
     return str.toString();
   }
