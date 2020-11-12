@@ -49,8 +49,27 @@ public class History {
         .collect(Collectors.toSet());
   }
 
+  private Map<String, Long> getWins() {
+    return results
+        .stream()
+        .flatMap(r -> r.getScores().stream())
+        .filter(s -> s.getScore() > 0)
+        .collect(Collectors.groupingBy(s -> s.getUser().getId(), Collectors.counting()));
+  }
+
+  private Map<String, Long> getLosses() {
+    return results
+        .stream()
+        .flatMap(r -> r.getScores().stream())
+        .filter(s -> s.getScore() < 0)
+        .collect(Collectors.groupingBy(s -> s.getUser().getId(), Collectors.counting()));
+  }
+
   public String leaderboard() {
     StringBuilder str = new StringBuilder();
+
+    Map<String, Long> wins = getWins();
+    Map<String, Long> losses = getLosses();
 
     str.append("```\n");
     str.append("ALL TIME LEADERBOARD:");
@@ -58,7 +77,14 @@ public class History {
         .stream()
         .sorted(Comparator.comparing(Score::getScore).reversed())
         .forEach(
-            sc -> str.append(String.format("\n%10d : %s", sc.getScore(), sc.getUser().getTag())));
+            sc ->
+                str.append(
+                    String.format(
+                        "\n%10d : %3d-%3d : %s",
+                        sc.getScore(),
+                        wins.getOrDefault(sc.getUser().getId(), 0L),
+                        losses.getOrDefault(sc.getUser().getId(), 0L),
+                        sc.getUser().getTag())));
     str.append("\n```");
 
     return str.toString();
