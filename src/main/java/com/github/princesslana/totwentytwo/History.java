@@ -32,8 +32,7 @@ public class History {
     Map<String, User> users = new HashMap<>();
     Map<String, Long> scores = new HashMap<>();
 
-    results
-        .stream()
+    results.stream()
         .flatMap(r -> r.getScores().stream())
         .forEach(
             s -> {
@@ -42,24 +41,20 @@ public class History {
               scores.put(userId, scores.getOrDefault(userId, 0L) + s.getScore());
             });
 
-    return scores
-        .entrySet()
-        .stream()
+    return scores.entrySet().stream()
         .map(e -> ImmutableScore.builder().user(users.get(e.getKey())).score(e.getValue()).build())
         .collect(Collectors.toSet());
   }
 
   private Map<String, Long> getWins() {
-    return results
-        .stream()
+    return results.stream()
         .flatMap(r -> r.getScores().stream())
         .filter(s -> s.getScore() > 0)
         .collect(Collectors.groupingBy(s -> s.getUser().getId(), Collectors.counting()));
   }
 
   private Map<String, Long> getLosses() {
-    return results
-        .stream()
+    return results.stream()
         .flatMap(r -> r.getScores().stream())
         .filter(s -> s.getScore() < 0)
         .collect(Collectors.groupingBy(s -> s.getUser().getId(), Collectors.counting()));
@@ -73,8 +68,7 @@ public class History {
 
     str.append("```\n");
     str.append("ALL TIME LEADERBOARD:");
-    getTotalScores()
-        .stream()
+    getTotalScores().stream()
         .sorted(Comparator.comparing(Score::getScore).reversed())
         .forEach(
             sc ->

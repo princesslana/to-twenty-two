@@ -25,7 +25,7 @@ public class Config {
   }
 
   public static File getHistoryFolder() {
-    return new File("data");
+    return new File(Optional.ofNullable(System.getenv("TTT_DATA")).orElse("data"));
   }
 
   public static ObjectMapper getJackson() {

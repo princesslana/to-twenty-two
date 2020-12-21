@@ -23,8 +23,7 @@ public interface Result {
 
     str.append("```\n");
     str.append("THIS ROUND:");
-    getScores()
-        .stream()
+    getScores().stream()
         .sorted(Comparator.comparing(Score::getScore).reversed())
         .forEach(
             sc -> str.append(String.format("\n%10d : %s", sc.getScore(), sc.getUser().getTag())));

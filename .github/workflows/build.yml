@@ -18,8 +18,8 @@ jobs:
     - name: Cache local Maven repository
       uses: actions/cache@v2
       with:
-        path: ~/.m2/repository
-        key: maven-${{ hashFiles('pom.xml') }}
-        restore-keys: maven-
+        path: ~/.gradle/caches
+        key: gradle-${{ hashFiles('build.gradle') }}
+        restore-keys: gradle-
     - name: Build
-      run: mvn -B verify
+      run: ./gradlew build

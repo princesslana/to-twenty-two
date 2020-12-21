@@ -80,9 +80,7 @@ public class Round {
       scores.put(loser, -getSum(loser));
     }
 
-    scores
-        .entrySet()
-        .stream()
+    scores.entrySet().stream()
         .map(e -> ImmutableScore.builder().user(e.getKey()).score(e.getValue()).build())
         .forEach(r::addScores);
 

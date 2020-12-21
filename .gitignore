@@ -1,5 +1,7 @@
 .channel_id
+.gradle
 .token
+build
 data
 dependency-reduced-pom.xml
 tags
