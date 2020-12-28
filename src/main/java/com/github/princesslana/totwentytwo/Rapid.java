@@ -66,7 +66,7 @@ public class Rapid implements Round {
 
       getPlayers().stream().forEach(p -> scores.put(p, -getSum(p)));
 
-      if (assist != null) {
+      if (assist != null && getPlayers().size() > 2) {
         scores.put(assist, 0L);
       }
 
