@@ -31,12 +31,19 @@ public class ToTwentyTwo implements Consumer<SmallD> {
         p -> {
           GatewayPayload gp = GatewayPayload.read(p);
 
-          if (gp.op() == 0 && gp.t().equals(Optional.of("MESSAGE_CREATE"))) {
+          if (gp.op() == 0 && gp.t().equals(Optional.of("READY"))) {
+            for (var channelId : Config.getCountChannelId()) {
+              if (!rounds.containsKey(channelId)) {
+                newRound(channelId);
+                send(smalld, channelId, "Ready for a new round to begin!");
+              }
+            }
+          } else if (gp.op() == 0 && gp.t().equals(Optional.of("MESSAGE_CREATE"))) {
             Message msg = Message.read(gp.d());
 
             if (Config.getCountChannelId().contains(msg.getChannelId())) {
               if (!rounds.containsKey(msg.getChannelId())) {
-                rounds.put(msg.getChannelId(), new Traditional());
+                newRound(msg.getChannelId());
               }
 
               Round round = rounds.get(msg.getChannelId());
@@ -47,6 +54,25 @@ public class ToTwentyTwo implements Consumer<SmallD> {
             }
           }
         });
+  }
+
+  private boolean isTraditional(String channelId) {
+    return Config.getTraditionalCountChannelIds().contains(channelId);
+  }
+
+  private boolean isRapid(String channelId) {
+    return Config.getRapidCountChannelIds().contains(channelId);
+  }
+
+  private void newRound(String channelId) {
+    if (isTraditional(channelId)) {
+      rounds.put(channelId, new Traditional());
+    } else if (isRapid(channelId)) {
+      rounds.put(channelId, new Rapid());
+    } else {
+      throw new IllegalStateException(
+          "Asked to create a new round in unconfigured channel " + channelId);
+    }
   }
 
   private synchronized void checkForDone(SmallD smalld, String channelId) {
@@ -63,9 +89,9 @@ public class ToTwentyTwo implements Consumer<SmallD> {
       history.add(result);
 
       send(smalld, channelId, result.format());
-      send(smalld, channelId, history.leaderboard());
+      send(smalld, channelId, history.leaderboard(isTraditional(channelId)));
 
-      rounds.put(channelId, new Traditional());
+      newRound(channelId);
     }
   }
 

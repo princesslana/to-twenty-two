@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +20,24 @@ public class Config {
   }
 
   public static Set<String> getCountChannelId() {
-    return new HashSet<>(Arrays.asList(getString("TTT_CHANNEL_ID").split(",")));
+    var all = new HashSet<String>();
+    all.addAll(getTraditionalCountChannelIds());
+    all.addAll(getRapidCountChannelIds());
+    return all;
+  }
+
+  public static Set<String> getTraditionalCountChannelIds() {
+    if (System.getenv("TTT_CHANNEL_ID") == null) {
+      return Set.of();
+    }
+    return Set.of(getString("TTT_CHANNEL_ID").split(","));
+  }
+
+  public static Set<String> getRapidCountChannelIds() {
+    if (System.getenv("TTT_RAPID_CHANNEL_ID") == null) {
+      return Set.of();
+    }
+    return Set.of(getString("TTT_RAPID_CHANNEL_ID").split(","));
   }
 
   public static File getHistoryFolder() {

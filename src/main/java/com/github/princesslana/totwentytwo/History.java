@@ -28,7 +28,7 @@ public class History {
     }
   }
 
-  private Set<Score> getTotalScores() {
+  private Set<Score> getTotalScores(boolean allowNegatives) {
     Map<String, User> users = new HashMap<>();
     Map<String, Long> scores = new HashMap<>();
 
@@ -38,7 +38,14 @@ public class History {
             s -> {
               String userId = s.getUser().getId();
               users.put(userId, s.getUser());
-              scores.put(userId, scores.getOrDefault(userId, 0L) + s.getScore());
+
+              long newScore = scores.getOrDefault(userId, 0L) + s.getScore();
+
+              if (!allowNegatives) {
+                newScore = Math.max(0L, newScore);
+              }
+
+              scores.put(userId, newScore);
             });
 
     return scores.entrySet().stream()
@@ -60,7 +67,7 @@ public class History {
         .collect(Collectors.groupingBy(s -> s.getUser().getId(), Collectors.counting()));
   }
 
-  public String leaderboard() {
+  public String leaderboard(boolean allowNegative) {
     StringBuilder str = new StringBuilder();
 
     Map<String, Long> wins = getWins();
@@ -68,7 +75,7 @@ public class History {
 
     str.append("```\n");
     str.append("ALL TIME LEADERBOARD:");
-    getTotalScores().stream()
+    getTotalScores(allowNegative).stream()
         .sorted(Comparator.comparing(Score::getScore).reversed())
         .forEach(
             sc ->
