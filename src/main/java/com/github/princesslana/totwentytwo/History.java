@@ -76,7 +76,10 @@ public class History {
     str.append("```\n");
     str.append("ALL TIME LEADERBOARD:");
     getTotalScores(allowNegative).stream()
-        .sorted(Comparator.comparing(Score::getScore).reversed())
+        .sorted(
+            Comparator.comparing(Score::getScore)
+                .thenComparing(sc -> wins.getOrDefault(sc.getUser().getId(), 0L))
+                .reversed())
         .forEach(
             sc ->
                 str.append(
