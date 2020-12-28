@@ -36,7 +36,7 @@ public class ToTwentyTwo implements Consumer<SmallD> {
 
             if (Config.getCountChannelId().contains(msg.getChannelId())) {
               if (!rounds.containsKey(msg.getChannelId())) {
-                rounds.put(msg.getChannelId(), new Round());
+                rounds.put(msg.getChannelId(), new Traditional());
               }
 
               Round round = rounds.get(msg.getChannelId());
@@ -65,7 +65,7 @@ public class ToTwentyTwo implements Consumer<SmallD> {
       send(smalld, channelId, result.format());
       send(smalld, channelId, history.leaderboard());
 
-      rounds.put(channelId, new Round());
+      rounds.put(channelId, new Traditional());
     }
   }
 
