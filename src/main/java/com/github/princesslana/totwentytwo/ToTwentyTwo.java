@@ -25,7 +25,10 @@ public class ToTwentyTwo implements Consumer<SmallD> {
 
   public void accept(SmallD smalld) {
     executor.scheduleWithFixedDelay(
-        () -> rounds.keySet().forEach(cid -> checkForDone(smalld, cid)), 0, 1, TimeUnit.MINUTES);
+        () -> rounds.keySet().forEach(cid -> checkForDone(smalld, cid, true)),
+        0,
+        1,
+        TimeUnit.MINUTES);
 
     smalld.onGatewayPayload(
         p -> {
@@ -49,7 +52,7 @@ public class ToTwentyTwo implements Consumer<SmallD> {
 
               round.onMessage(msg.getAuthor(), msg.getContent());
 
-              checkForDone(smalld, msg.getChannelId());
+              checkForDone(smalld, msg.getChannelId(), false);
             }
           }
         });
@@ -75,10 +78,10 @@ public class ToTwentyTwo implements Consumer<SmallD> {
     send(smalld, channelId, "Ready for a new round to begin!");
   }
 
-  private synchronized void checkForDone(SmallD smalld, String channelId) {
+  private synchronized void checkForDone(SmallD smalld, String channelId, boolean checkTimeout) {
     Round round = rounds.get(channelId);
 
-    if (round.isDone()) {
+    if (round.isDone(checkTimeout)) {
       Result result = round.getResult();
 
       if (!histories.containsKey(channelId)) {

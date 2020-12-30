@@ -23,7 +23,7 @@ public class Traditional implements Round {
   private Instant lastCount;
 
   public void onMessage(User who, String msg) {
-    if (isDone() || (count.isEmpty() && !msg.equals("1"))) {
+    if (isDone(false) || (count.isEmpty() && !msg.equals("1"))) {
       return;
     }
 
@@ -43,16 +43,16 @@ public class Traditional implements Round {
     }
   }
 
-  public boolean isDone() {
+  public boolean isDone(boolean checkTimeout) {
     boolean isTimeOut =
         lastCount != null
             && Duration.between(lastCount, Instant.now()).compareTo(Duration.ofHours(12)) > 0;
 
-    return loser != null || count.size() == 22 || isTimeOut;
+    return loser != null || count.size() == 22 || (checkTimeout && isTimeOut);
   }
 
   public Result getResult() {
-    if (!isDone()) {
+    if (!isDone(true)) {
       throw new IllegalStateException("Can't get result of unfinished round");
     }
 

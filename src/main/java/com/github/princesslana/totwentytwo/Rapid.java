@@ -23,7 +23,7 @@ public class Rapid implements Round {
   private Instant firstCount;
 
   public void onMessage(User who, String msg) {
-    if (isDone() || (count.isEmpty() && !msg.equals("1"))) {
+    if (isDone(false) || (count.isEmpty() && !msg.equals("1"))) {
       return;
     }
 
@@ -42,16 +42,16 @@ public class Rapid implements Round {
     }
   }
 
-  public boolean isDone() {
+  public boolean isDone(boolean checkTimeout) {
     boolean isTimeOut =
         firstCount != null
             && Duration.between(firstCount, Instant.now()).compareTo(Duration.ofMinutes(22)) > 0;
 
-    return loser != null || count.size() == 22 || isTimeOut;
+    return (checkTimeout && isTimeOut) || loser != null || count.size() == 22;
   }
 
   public Result getResult() {
-    if (!isDone()) {
+    if (!isDone(true)) {
       throw new IllegalStateException("Can't get result of unfinished round");
     }
 
